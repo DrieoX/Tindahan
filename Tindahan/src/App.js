@@ -10,6 +10,7 @@ import ResupplyScreen from './screens/ResupplyScreen';
 import SalesScreen from './screens/SalesScreen';
 import ReportsScreen from './screens/ReportsScreen';
 import { getDBConnection, createTables } from './db/db';
+import SuppliersScreen from './screens/SuppliersScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,7 @@ export default function App() {
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="Inventory" component={InventoryScreen} />
         <Stack.Screen name="Resupply" component={ResupplyScreen} />
+        <Stack.Screen name="Suppliers" component={SuppliersScreen} />
         <Stack.Screen name="Sales" component={SalesScreen} />
         <Stack.Screen name="Reports" component={ReportsScreen} />
       </Stack.Navigator>

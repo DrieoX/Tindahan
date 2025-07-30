@@ -37,7 +37,6 @@ export const createTables = async (db) => {
       sku TEXT UNIQUE,
       name TEXT NOT NULL,
       description TEXT,
-      unit_cost REAL,
       unit_price REAL,
       supplier_id INTEGER,
       FOREIGN KEY (supplier_id) REFERENCES Suppliers(supplier_id)

@@ -15,6 +15,9 @@ export default function MainLayout({ children }) {
         <TouchableOpacity onPress={() => navigation.navigate('Inventory')}>
           <Text style={styles.link}>Inventory</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Suppliers')}>
+          <Text style={styles.link}>Suppliers</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Resupply')}>
           <Text style={styles.link}>Resupply</Text>
         </TouchableOpacity>
