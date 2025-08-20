@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { TouchableOpacity, Text } from 'react-native';
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -23,11 +24,27 @@ export default function App() {
     setupDB();
   }, []);
 
+  // 🔹 Logout handler
+  const handleLogout = (navigation) => {
+    navigation.replace('Login'); // replace so back button won’t return
+  };
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={({ navigation }) => ({
+          headerShown: true,
+          headerBackVisible: false, // 🔹 removes back button
+          headerRight: () => (
+            <TouchableOpacity onPress={() => handleLogout(navigation)} style={{ marginRight: 15 }}>
+              <Text style={{ color: 'red', fontWeight: 'bold' }}>Logout</Text>
+            </TouchableOpacity>
+          ),
+        })}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="Inventory" component={InventoryScreen} />
         <Stack.Screen name="Resupply" component={ResupplyScreen} />

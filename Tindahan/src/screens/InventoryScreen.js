@@ -108,18 +108,19 @@ export default function InventoryScreen() {
           data={inventory}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
-            <View className="bg-gray-100 p-3 mb-2 rounded-xl">
-              <Text className="font-semibold">{item.name}</Text>
-              <Text>Quantity: {item.quantity ?? 0}</Text>
-              <Text>Expires: {item.expiration_date ?? 'N/A'}</Text>
-              <Text>Unit Price: ₱{item.unit_price ?? '0.00'}</Text>
-              <Text>Last Cost: ₱{item.last_unit_cost ?? '0.00'}</Text>
-              <View className="flex-row mt-2 space-x-2">
-                <TouchableOpacity onPress={() => handleEditItem(item)} className="bg-blue-500 px-2 py-1 rounded">
-                  <Text className="text-white text-sm">Edit</Text>
+            <View style={{ backgroundColor: '#60a5fa', padding: 16, borderRadius: 12, marginBottom: 12 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#1f2937' }}>{item.name}</Text>
+              <Text style={{ color: '#1f2937' }}>SKU/Barcode: {item.sku ?? 'N/A'}</Text>
+              <Text style={{ color: '#1f2937' }}>Quantity: {item.quantity ?? 0}</Text>
+              <Text style={{ color: '#1f2937' }}>Expires: {item.expiration_date ?? 'N/A'}</Text>
+              <Text style={{ color: '#1f2937' }}>Unit Price: ₱{item.unit_price ?? '0.00'}</Text>
+              <Text style={{ color: '#1f2937' }}>Last Cost: ₱{item.last_unit_cost ?? '0.00'}</Text>
+              <View style={{ flexDirection: 'row', marginTop: 10 }}>
+                <TouchableOpacity onPress={() => handleEditItem(item)} style={{ backgroundColor: '#3b82f6', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, marginRight: 8 }}>
+                  <Text style={{ color: 'white', fontSize: 12 }}>Edit</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDelete(item.product_id)} className="bg-red-500 px-2 py-1 rounded">
-                  <Text className="text-white text-sm">Delete</Text>
+                <TouchableOpacity onPress={() => handleDelete(item.product_id)} style={{ backgroundColor: '#ef4444', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}>
+                  <Text style={{ color: 'white', fontSize: 12 }}>Delete</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -132,7 +133,13 @@ export default function InventoryScreen() {
         <Modal visible={showAddModal} animationType="slide">
           <ScrollView className="p-4">
             <Text className="text-lg font-bold mb-2">Add New Product</Text>
-            <TextInput placeholder="SKU (optional)" value={newItem.sku} onChangeText={(text) => setNewItem({ ...newItem, sku: text })} className="border p-2 my-1 rounded" />
+            <TextInput
+              placeholder="Scan or Enter SKU"
+              value={newItem.sku}
+              autoFocus={true}   // focus here so scanner types directly
+              onChangeText={(text) => setNewItem({ ...newItem, sku: text })}
+              className="border p-2 my-1 rounded"
+            />
             <TextInput placeholder="Name" value={newItem.name} onChangeText={(text) => setNewItem({ ...newItem, name: text })} className="border p-2 my-1 rounded" />
             <TextInput placeholder="Description" value={newItem.description} onChangeText={(text) => setNewItem({ ...newItem, description: text })} className="border p-2 my-1 rounded" />
             <TextInput placeholder="Unit Price" value={newItem.unit_price} keyboardType="numeric" onChangeText={(text) => setNewItem({ ...newItem, unit_price: text })} className="border p-2 my-1 rounded" />
@@ -155,7 +162,13 @@ export default function InventoryScreen() {
         <Modal visible={showEditModal} animationType="slide">
           <ScrollView className="p-4">
             <Text className="text-lg font-bold mb-2">Edit Product</Text>
-            <TextInput placeholder="SKU" value={editingItem?.sku} onChangeText={(text) => setEditingItem({ ...editingItem, sku: text })} className="border p-2 my-1 rounded" />
+            <TextInput
+              placeholder="Scan or Enter SKU"
+              value={editingItem?.sku}
+              autoFocus={true}   // scanner will type here
+              onChangeText={(text) => setEditingItem({ ...editingItem, sku: text })}
+              className="border p-2 my-1 rounded"
+            />
             <TextInput placeholder="Name" value={editingItem?.name} onChangeText={(text) => setEditingItem({ ...editingItem, name: text })} className="border p-2 my-1 rounded" />
             <TextInput placeholder="Description" value={editingItem?.description} onChangeText={(text) => setEditingItem({ ...editingItem, description: text })} className="border p-2 my-1 rounded" />
             <TextInput placeholder="Unit Price" value={editingItem?.unit_price?.toString()} keyboardType="numeric" onChangeText={(text) => setEditingItem({ ...editingItem, unit_price: text })} className="border p-2 my-1 rounded" />

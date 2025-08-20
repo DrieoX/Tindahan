@@ -66,7 +66,8 @@ export default function DashboardScreen({ route }) {
           Welcome back, {user?.username}!
         </Text>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+        {/* Stack cards vertically instead of side by side */}
+        <View style={{ marginBottom: 20 }}>
           <StatCard label="Today's Sales" value={`₱ ${stats.salesToday.toFixed(2)}`} color="#a3e635" />
           <StatCard label="Total Products" value={stats.totalProducts} color="#60a5fa" />
           <StatCard label="Expired Items" value={stats.expired} color="#f87171" />
@@ -101,7 +102,14 @@ export default function DashboardScreen({ route }) {
 }
 
 const StatCard = ({ label, value, color }) => (
-  <View style={{ backgroundColor: color, padding: 16, borderRadius: 12, flex: 1, marginHorizontal: 4 }}>
+  <View
+    style={{
+      backgroundColor: color,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12, // spacing between rows
+    }}
+  >
     <Text style={{ color: '#1f2937' }}>{label}</Text>
     <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{value}</Text>
   </View>
