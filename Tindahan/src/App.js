@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TouchableOpacity, Text } from 'react-native';
 
@@ -10,12 +10,88 @@ import InventoryScreen from './screens/InventoryScreen';
 import ResupplyScreen from './screens/ResupplyScreen';
 import SalesScreen from './screens/SalesScreen';
 import ReportsScreen from './screens/ReportsScreen';
-import { getDBConnection, createTables } from './db/db';
 import SuppliersScreen from './screens/SuppliersScreen';
+import { getDBConnection, createTables } from './db/db';
 
 const Stack = createNativeStackNavigator();
 
+// 🔹 Custom header with logout using hook
+const LogoutButton = ({ handleLogout }) => {
+  const navigation = useNavigation();
+  return (
+    <TouchableOpacity
+      onPress={() => handleLogout(navigation)}
+      style={{ marginRight: 15 }}
+    >
+      <Text style={{ color: 'red', fontWeight: 'bold' }}>Logout</Text>
+    </TouchableOpacity>
+  );
+};
+
+const screenOptions = (handleLogout) => ({
+  headerShown: true,
+  headerBackVisible: false,
+  headerRight: () => <LogoutButton handleLogout={handleLogout} />,
+});
+
+// 🔹 Client-only stack
+function ClientStack({ handleLogout, userMode }) {
+  return (
+    <Stack.Navigator screenOptions={screenOptions(handleLogout)}>
+      <Stack.Screen name="Dashboard">
+        {(props) => <DashboardScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Inventory">
+        {(props) => <InventoryScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Resupply">
+        {(props) => <ResupplyScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+    </Stack.Navigator>
+  );
+}
+
+// 🔹 Server-only stack
+function ServerStack({ handleLogout, userMode }) {
+  return (
+    <Stack.Navigator screenOptions={screenOptions(handleLogout)}>
+      <Stack.Screen name="Dashboard">
+        {(props) => <DashboardScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Inventory">
+        {(props) => <InventoryScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Resupply">
+        {(props) => <ResupplyScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Sales">
+        {(props) => <SalesScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Reports">
+        {(props) => <ReportsScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Suppliers">
+        {(props) => <SuppliersScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
+    </Stack.Navigator>
+  );
+}
+
+// 🔹 AuthStack (before login)
+function AuthStack({ setUserMode }) {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login">
+        {(props) => <LoginScreen {...props} setUserMode={setUserMode} />}
+      </Stack.Screen>
+      <Stack.Screen name="Register" component={RegisterScreen} />
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
+  const [userMode, setUserMode] = useState(null); // server or client
+
   useEffect(() => {
     const setupDB = async () => {
       const db = await getDBConnection();
@@ -24,34 +100,20 @@ export default function App() {
     setupDB();
   }, []);
 
-  // 🔹 Logout handler
   const handleLogout = (navigation) => {
-    navigation.replace('Login'); // replace so back button won’t return
+    setUserMode(null);
+    navigation.replace('Login'); // back to login
   };
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={({ navigation }) => ({
-          headerShown: true,
-          headerBackVisible: false, // 🔹 removes back button
-          headerRight: () => (
-            <TouchableOpacity onPress={() => handleLogout(navigation)} style={{ marginRight: 15 }}>
-              <Text style={{ color: 'red', fontWeight: 'bold' }}>Logout</Text>
-            </TouchableOpacity>
-          ),
-        })}
-      >
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Inventory" component={InventoryScreen} />
-        <Stack.Screen name="Resupply" component={ResupplyScreen} />
-        <Stack.Screen name="Suppliers" component={SuppliersScreen} />
-        <Stack.Screen name="Sales" component={SalesScreen} />
-        <Stack.Screen name="Reports" component={ReportsScreen} />
-      </Stack.Navigator>
+      {userMode === 'server' ? (
+        <ServerStack handleLogout={handleLogout} userMode={userMode} />
+      ) : userMode === 'client' ? (
+        <ClientStack handleLogout={handleLogout} userMode={userMode} />
+      ) : (
+        <AuthStack setUserMode={setUserMode} />
+      )}
     </NavigationContainer>
   );
 }

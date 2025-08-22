@@ -5,6 +5,7 @@ const hashPassword = (password) => {
   return CryptoJS.SHA256(password).toString(); // Use SHA256 hash
 };
 
+// Register a new user with username, password, and role
 export const registerUser = async (username, password, role) => {
   const db = await getDBConnection();
   const passwordHash = hashPassword(password);
@@ -20,6 +21,7 @@ export const registerUser = async (username, password, role) => {
   }
 };
 
+// Login and return user info
 export const loginUser = async (username, password) => {
   const db = await getDBConnection();
   const passwordHash = hashPassword(password);

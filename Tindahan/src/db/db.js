@@ -7,10 +7,8 @@ export const getDBConnection = async () => {
 };
 
 export const createTables = async (db) => {
-  // Enable foreign keys
   await db.executeSql(`PRAGMA foreign_keys = ON`);
 
-  // Users Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Users (
       user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +18,6 @@ export const createTables = async (db) => {
     );
   `);
 
-  // Suppliers Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Suppliers (
       supplier_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,7 +27,6 @@ export const createTables = async (db) => {
     );
   `);
 
-  // Products Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Products (
       product_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,7 +39,6 @@ export const createTables = async (db) => {
     );
   `);
 
-  // Inventory Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Inventory (
       product_id INTEGER PRIMARY KEY,
@@ -54,7 +49,6 @@ export const createTables = async (db) => {
     );
   `);
 
-  // Resupplied Items Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Resupplied_items (
       resupplied_items_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +65,6 @@ export const createTables = async (db) => {
     );
   `);
 
-  // Sales Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Sales (
       sales_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,7 +74,6 @@ export const createTables = async (db) => {
     );
   `);
 
-  // Sale Items Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Sale_items (
       sales_items_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,7 +88,6 @@ export const createTables = async (db) => {
     );
   `);
 
-  // Backup Table
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Backup (
       backup_id INTEGER PRIMARY KEY AUTOINCREMENT,

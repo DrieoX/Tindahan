@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { loginUser } from '../services/UserService';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, setUserMode }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [mode, setMode] = useState('Client'); // 🔥 Session-only mode
 
   const handleLogin = async () => {
     const result = await loginUser(username, password);
     if (result.success) {
-      Alert.alert('Welcome', `Logged in as ${result.user.role}`);
-      navigation.navigate('Dashboard', { user: result.user });
+      Alert.alert('Welcome', `Logged in as ${result.user.role} in ${mode} mode`);
+      // 🔹 Instead of navigate, set the mode (switches stack to AppStack)
+      setUserMode(mode.toLowerCase()); 
     } else {
       Alert.alert('Error', result.error);
     }
@@ -34,6 +37,16 @@ export default function LoginScreen({ navigation }) {
         onChangeText={setPassword}
         style={{ marginBottom: 20, borderBottomWidth: 1 }}
       />
+
+      <Text style={{ marginTop: 10 }}>Select Mode:</Text>
+      <Picker
+        selectedValue={mode}
+        onValueChange={(itemValue) => setMode(itemValue)}
+        style={{ height: 50, marginBottom: 20 }}
+      >
+        <Picker.Item label="Server" value="Server" />
+        <Picker.Item label="Client" value="Client" />
+      </Picker>
 
       <Button title="Login" onPress={handleLogin} />
 

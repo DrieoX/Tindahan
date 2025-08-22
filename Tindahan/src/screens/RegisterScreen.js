@@ -6,13 +6,13 @@ import { registerUser } from '../services/UserService';
 export default function RegisterScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('Admin');
+  const [role, setRole] = useState('IT admin');
 
   const handleRegister = async () => {
     const result = await registerUser(username, password, role);
     if (result.success) {
-      Alert.alert('Success', 'User registered!');
-      navigation.navigate('Dashboard', { user: { username, role } });
+      Alert.alert('Success', 'User registered! Please login.');
+      navigation.navigate('Login');
     } else {
       Alert.alert('Error', result.error);
     }
@@ -43,7 +43,6 @@ export default function RegisterScreen({ navigation }) {
         onValueChange={(itemValue) => setRole(itemValue)}
         style={{ height: 50, marginBottom: 20 }}
       >
-        <Picker.Item label="Admin" value="Admin" />
         <Picker.Item label="Owner" value="Owner" />
         <Picker.Item label="Staff" value="Staff" />
         <Picker.Item label="IT admin" value="IT admin" />

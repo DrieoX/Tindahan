@@ -2,37 +2,40 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-export default function MainLayout({ children }) {
+export default function MainLayout({ children, userMode }) {
   const navigation = useNavigation();
+
+  // Define menu items dynamically based on userMode
+  const menuItems = [
+    { name: 'Dashboard', label: 'Home' },
+    { name: 'Inventory', label: 'Inventory' },
+    { name: 'Resupply', label: 'Resupply' },
+  ];
+
+  if (userMode === 'server') {
+    menuItems.push(
+      { name: 'Sales', label: 'Sales' },
+      { name: 'Reports', label: 'Reports' },
+      { name: 'Suppliers', label: 'Suppliers' }
+    );
+  }
 
   return (
     <View style={styles.container}>
       {/* Sidebar */}
       <View style={styles.sidebar}>
-        <TouchableOpacity onPress={() => navigation.navigate('Dashboard')}>
-          <Text style={styles.link}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Inventory')}>
-          <Text style={styles.link}>Inventory</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Suppliers')}>
-          <Text style={styles.link}>Suppliers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Resupply')}>
-          <Text style={styles.link}>Resupply</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Sales')}>
-          <Text style={styles.link}>Sales</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Reports')}>
-          <Text style={styles.link}>Reports</Text>
-        </TouchableOpacity>
+        {menuItems.map((item) => (
+          <TouchableOpacity
+            key={item.name}
+            onPress={() => navigation.navigate(item.name)}
+          >
+            <Text style={styles.link}>{item.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Main Content */}
-      <View style={styles.mainContent}>
-        {children}
-      </View>
+      <View style={styles.mainContent}>{children}</View>
     </View>
   );
 }

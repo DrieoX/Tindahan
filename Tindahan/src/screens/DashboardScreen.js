@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { getDBConnection } from '../db/db';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import MainLayout from '../components/MainLayout';
 
-export default function DashboardScreen({ route }) {
-  const [user, setUser] = useState(route.params?.user);
+export default function DashboardScreen({ userMode }) {
+  const route = useRoute();
+  const [user] = useState(route.params?.user || {}); 
+  const [mode] = useState(userMode || 'Client'); 
   const [stats, setStats] = useState({
     salesToday: 0,
     totalProducts: 0,
@@ -25,19 +27,28 @@ export default function DashboardScreen({ route }) {
 
     const queries = [
       db.executeSql(
-        `SELECT SUM(amount) as total FROM Sale_items INNER JOIN Sales ON Sales.sales_id = Sale_items.sales_id WHERE sales_date = ?`,
+        `SELECT SUM(amount) as total 
+         FROM Sale_items 
+         INNER JOIN Sales ON Sales.sales_id = Sale_items.sales_id 
+         WHERE sales_date = ?`,
         [today]
       ),
       db.executeSql(`SELECT COUNT(*) as count FROM Products`),
       db.executeSql(`SELECT COUNT(*) as count FROM Inventory WHERE quantity <= threshold`),
       db.executeSql(`SELECT COUNT(*) as count FROM Inventory WHERE expiration_date <= ?`, [today]),
       db.executeSql(
-        `SELECT p.name, i.expiration_date, i.quantity FROM Inventory i JOIN Products p ON i.product_id = p.product_id WHERE i.expiration_date <= ?`,
+        `SELECT p.name, i.expiration_date, i.quantity 
+         FROM Inventory i 
+         JOIN Products p ON i.product_id = p.product_id 
+         WHERE i.expiration_date <= ?`,
         [today]
       ),
       db.executeSql(
-        `SELECT p.name, i.quantity FROM Inventory i JOIN Products p ON i.product_id = p.product_id WHERE i.quantity <= i.threshold`
-      )
+        `SELECT p.name, i.quantity 
+         FROM Inventory i 
+         JOIN Products p ON i.product_id = p.product_id 
+         WHERE i.quantity <= i.threshold`
+      ),
     ];
 
     const results = await Promise.all(queries);
@@ -60,15 +71,20 @@ export default function DashboardScreen({ route }) {
   };
 
   return (
-    <MainLayout>
+    <MainLayout userMode={mode.toLowerCase()}>
       <ScrollView style={{ padding: 16 }}>
         <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
-          Welcome back, {user?.username}!
+          Welcome back, {user?.username || 'User'}! ({mode.toUpperCase()} mode)
         </Text>
 
-        {/* Stack cards vertically instead of side by side */}
         <View style={{ marginBottom: 20 }}>
-          <StatCard label="Today's Sales" value={`₱ ${stats.salesToday.toFixed(2)}`} color="#a3e635" />
+          {mode.toLowerCase() === 'server' && (
+            <StatCard
+              label="Today's Sales"
+              value={`₱ ${stats.salesToday.toFixed(2)}`}
+              color="#a3e635"
+            />
+          )}
           <StatCard label="Total Products" value={stats.totalProducts} color="#60a5fa" />
           <StatCard label="Expired Items" value={stats.expired} color="#f87171" />
         </View>
@@ -107,7 +123,7 @@ const StatCard = ({ label, value, color }) => (
       backgroundColor: color,
       padding: 16,
       borderRadius: 12,
-      marginBottom: 12, // spacing between rows
+      marginBottom: 12,
     }}
   >
     <Text style={{ color: '#1f2937' }}>{label}</Text>
