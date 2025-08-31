@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Button, Alert, TextInput, Modal, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Alert, TextInput, Modal, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { getDBConnection } from '../db/db';
 import MainLayout from '../components/MainLayout';
+import { useRoute } from '@react-navigation/native';
 
-export default function InventoryScreen() {
+export default function InventoryScreen({ userMode }) {
+  const route = useRoute();
+  const [mode] = useState(userMode || route.params?.userMode || 'client');
+
   const [inventory, setInventory] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -121,7 +125,7 @@ export default function InventoryScreen() {
   }).length;
 
   return (
-    <MainLayout>
+    <MainLayout userMode={mode.toLowerCase()}>
       <View style={styles.container}>
         <Text style={styles.header}>SmartTindahan</Text>
         
@@ -150,56 +154,59 @@ export default function InventoryScreen() {
         </View>
         
         <Text style={styles.sectionHeader}>Products</Text>
-        
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Product</Text>
-            <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Barcode</Text>
-            <Text style={styles.tableHeaderCell}>Price</Text>
-            <Text style={styles.tableHeaderCell}>Stock</Text>
-            <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Expiry Date</Text>
-            <Text style={styles.tableHeaderCell}>Status</Text>
-            <Text style={styles.tableHeaderCell}>Actions</Text>
+
+<ScrollView horizontal>
+  <View style={styles.table}>
+    <View style={styles.tableHeader}>
+      <Text style={[styles.tableHeaderCell, { width: 150 }]}>Product</Text>
+      <Text style={[styles.tableHeaderCell, { width: 100 }]}>Barcode</Text>
+      <Text style={[styles.tableHeaderCell, { width: 80 }]}>Price</Text>
+      <Text style={[styles.tableHeaderCell, { width: 80 }]}>Stock</Text>
+      <Text style={[styles.tableHeaderCell, { width: 120 }]}>Expiry Date</Text>
+      <Text style={[styles.tableHeaderCell, { width: 100 }]}>Status</Text>
+      <Text style={[styles.tableHeaderCell, { width: 100 }]}>Actions</Text>
+    </View>
+
+    <FlatList
+      data={filteredInventory}
+      keyExtractor={(item, index) => index.toString()}
+      renderItem={({ item }) => {
+        // Determine status
+        let status = 'Good';
+        let statusStyle = styles.statusGood;
+
+        if (item.expiration_date) {
+          const expiryDate = new Date(item.expiration_date);
+          const today = new Date();
+          if (expiryDate < today) {
+            status = 'Expired';
+            statusStyle = styles.statusExpired;
+          }
+        }
+
+        if (item.quantity < 10) {
+          status = 'Low Stock';
+          statusStyle = styles.statusLowStock;
+        }
+
+        return (
+          <View style={styles.tableRow}>
+            <Text style={[styles.tableCell, { width: 150, fontWeight: 'bold' }]}>{item.name}</Text>
+            <Text style={[styles.tableCell, { width: 100 }]}>{item.sku || 'N/A'}</Text>
+            <Text style={[styles.tableCell, { width: 80 }]}>₱{item.unit_price || '0.00'}</Text>
+            <Text style={[styles.tableCell, { width: 80 }]}>{item.quantity || 0}</Text>
+            <Text style={[styles.tableCell, { width: 120 }]}>{item.expiration_date || 'N/A'}</Text>
+            <Text style={[styles.tableCell, { width: 100 }, statusStyle]}>{status}</Text>
+            <TouchableOpacity onPress={() => handleEditItem(item)} style={[styles.editButton, { width: 100 }]}>
+              <Text style={styles.editButtonText}>Edit</Text>
+            </TouchableOpacity>
           </View>
-          
-          <FlatList
-            data={filteredInventory}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => {
-              // Determine status
-              let status = 'Good';
-              let statusStyle = styles.statusGood;
-              
-              if (item.expiration_date) {
-                const expiryDate = new Date(item.expiration_date);
-                const today = new Date();
-                if (expiryDate < today) {
-                  status = 'Expired';
-                  statusStyle = styles.statusExpired;
-                }
-              }
-              
-              if (item.quantity < 10) { // Assuming min stock is 10
-                status = 'Low Stock';
-                statusStyle = styles.statusLowStock;
-              }
-              
-              return (
-                <View style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { flex: 2, fontWeight: 'bold' }]}>{item.name}</Text>
-                  <Text style={[styles.tableCell, { flex: 2 }]}>{item.sku || 'N/A'}</Text>
-                  <Text style={styles.tableCell}>₱{item.unit_price || '0.00'}</Text>
-                  <Text style={styles.tableCell}>{item.quantity || 0}</Text>
-                  <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.expiration_date || 'N/A'}</Text>
-                  <Text style={[styles.tableCell, statusStyle]}>{status}</Text>
-                  <TouchableOpacity onPress={() => handleEditItem(item)} style={styles.editButton}>
-                    <Text style={styles.editButtonText}>Edit</Text>
-                  </TouchableOpacity>
-                </View>
-              );
-            }}
-          />
-        </View>
+        );
+      }}
+    />
+  </View>
+</ScrollView>
+
 
         <TouchableOpacity 
           style={styles.addButton}

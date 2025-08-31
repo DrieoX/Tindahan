@@ -3,12 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView, S
 import { getDBConnection } from '../db/db';
 import MainLayout from '../components/MainLayout';
 
-export default function SalesScreen() {
+export default function SalesScreen({ userMode }) {
   const [products, setProducts] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState('');
   const [barcodeInput, setBarcodeInput] = useState('');
+  const [mode] = useState(userMode || 'client'); // default client
 
   useEffect(() => {
     loadProducts();
@@ -38,7 +39,6 @@ export default function SalesScreen() {
 
   const addItemByBarcode = () => {
     if (!barcodeInput) return;
-    
     const product = products.find(p => p.sku === barcodeInput);
     if (product) {
       addItem(product);
@@ -89,7 +89,7 @@ export default function SalesScreen() {
   );
 
   return (
-    <MainLayout>
+    <MainLayout userMode={mode.toLowerCase()}>
       <ScrollView style={styles.container}>
         <Text style={styles.header}>SmartTindahan</Text>
         

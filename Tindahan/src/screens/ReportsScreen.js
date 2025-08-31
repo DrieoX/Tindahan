@@ -3,8 +3,9 @@ import { View, Text, FlatList, ScrollView, StyleSheet } from 'react-native';
 import { getDBConnection } from '../db/db';
 import MainLayout from '../components/MainLayout';
 
-export default function ReportsScreen() {
+export default function ReportsScreen({ userMode }) {
   const [report, setReport] = useState([]);
+  const [mode] = useState(userMode || 'client'); // default client if not passed
 
   useEffect(() => {
     fetchReport();
@@ -23,7 +24,7 @@ export default function ReportsScreen() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout userMode={mode.toLowerCase()}>
       <ScrollView style={styles.container}>
         <Text style={styles.header}>SmartTindahan</Text>
         

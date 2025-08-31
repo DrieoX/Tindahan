@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TouchableOpacity, Text } from 'react-native';
 
@@ -15,29 +15,26 @@ import { getDBConnection, createTables } from './db/db';
 
 const Stack = createNativeStackNavigator();
 
-// 🔹 Custom header with logout using hook
-const LogoutButton = ({ handleLogout }) => {
-  const navigation = useNavigation();
-  return (
-    <TouchableOpacity
-      onPress={() => handleLogout(navigation)}
-      style={{ marginRight: 15 }}
-    >
-      <Text style={{ color: 'red', fontWeight: 'bold' }}>Logout</Text>
-    </TouchableOpacity>
-  );
-};
+// 🔹 Custom header logout
+const LogoutButton = ({ handleLogout, navigation }) => (
+  <TouchableOpacity
+    onPress={() => handleLogout(navigation)}
+    style={{ marginRight: 15 }}
+  >
+    <Text style={{ color: 'red', fontWeight: 'bold' }}>Logout</Text>
+  </TouchableOpacity>
+);
 
-const screenOptions = (handleLogout) => ({
+const screenOptions = (handleLogout, navigation) => ({
   headerShown: true,
   headerBackVisible: false,
-  headerRight: () => <LogoutButton handleLogout={handleLogout} />,
+  headerRight: () => <LogoutButton handleLogout={handleLogout} navigation={navigation} />,
 });
 
 // 🔹 Client-only stack
-function ClientStack({ handleLogout, userMode }) {
+function ClientStack({ handleLogout, userMode, navigation }) {
   return (
-    <Stack.Navigator screenOptions={screenOptions(handleLogout)}>
+    <Stack.Navigator screenOptions={screenOptions(handleLogout, navigation)}>
       <Stack.Screen name="Dashboard">
         {(props) => <DashboardScreen {...props} userMode={userMode} />}
       </Stack.Screen>
@@ -47,14 +44,17 @@ function ClientStack({ handleLogout, userMode }) {
       <Stack.Screen name="Resupply">
         {(props) => <ResupplyScreen {...props} userMode={userMode} />}
       </Stack.Screen>
+      <Stack.Screen name="Suppliers">
+        {(props) => <SuppliersScreen {...props} userMode={userMode} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }
 
 // 🔹 Server-only stack
-function ServerStack({ handleLogout, userMode }) {
+function ServerStack({ handleLogout, userMode, navigation }) {
   return (
-    <Stack.Navigator screenOptions={screenOptions(handleLogout)}>
+    <Stack.Navigator screenOptions={screenOptions(handleLogout, navigation)}>
       <Stack.Screen name="Dashboard">
         {(props) => <DashboardScreen {...props} userMode={userMode} />}
       </Stack.Screen>
@@ -77,7 +77,7 @@ function ServerStack({ handleLogout, userMode }) {
   );
 }
 
-// 🔹 AuthStack (before login)
+// 🔹 Auth stack
 function AuthStack({ setUserMode }) {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -90,7 +90,7 @@ function AuthStack({ setUserMode }) {
 }
 
 export default function App() {
-  const [userMode, setUserMode] = useState(null); // server or client
+  const [userMode, setUserMode] = useState(null); // server | client | null
 
   useEffect(() => {
     const setupDB = async () => {
@@ -102,11 +102,14 @@ export default function App() {
 
   const handleLogout = (navigation) => {
     setUserMode(null);
-    navigation.replace('Login'); // back to login
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
   };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer key={userMode}> 
       {userMode === 'server' ? (
         <ServerStack handleLogout={handleLogout} userMode={userMode} />
       ) : userMode === 'client' ? (

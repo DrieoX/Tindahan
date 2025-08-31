@@ -4,10 +4,10 @@ import { getDBConnection } from '../db/db';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import MainLayout from '../components/MainLayout';
 
-export default function DashboardScreen({ userMode }) {
-  const route = useRoute();
-  const [user] = useState(route.params?.user || {}); 
-  const [mode] = useState(userMode || 'Client'); 
+export default function DashboardScreen({ route, userMode }) {
+  const navigation = useNavigation();
+  const [user] = useState(route?.params?.user || {}); 
+  const mode = route?.params?.userMode || userMode || 'Client';  // ✅ Always preserve mode
   const [stats, setStats] = useState({
     salesToday: 0,
     totalProducts: 0,
@@ -15,7 +15,6 @@ export default function DashboardScreen({ userMode }) {
     expired: 0,
   });
   const [notifications, setNotifications] = useState([]);
-  const navigation = useNavigation();
 
   useEffect(() => {
     fetchDashboardStats();
@@ -73,7 +72,6 @@ export default function DashboardScreen({ userMode }) {
   return (
     <MainLayout userMode={mode.toLowerCase()}>
       <ScrollView style={{ padding: 16 }}>
-        
         {/* Welcome Text */}
         <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 6 }}>
           Welcome back, {user?.username || 'User'}!
@@ -144,7 +142,7 @@ export default function DashboardScreen({ userMode }) {
         <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
           Quick Actions
         </Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{ flex: 1, flexDirection: 'column', padding: 10 }}>
           <QuickAction label="Start New Sale" desc="Process customer transactions" bg="#dbeafe" />
           <QuickAction label="Manage Inventory" desc="Add or update products" bg="#d1fae5" />
           <QuickAction label="View Reports" desc="Analyze sales performance" bg="#ede9fe" />
@@ -174,11 +172,11 @@ const StatCard = ({ label, value, bg, text }) => (
 const QuickAction = ({ label, desc, bg }) => (
   <View
     style={{
-      flex: 1,
+      width: '100%',        // make it full width
       backgroundColor: bg,
       padding: 14,
       borderRadius: 12,
-      marginHorizontal: 4,
+      marginVertical: 6,    // spacing between rows
     }}
   >
     <Text style={{ fontSize: 14, fontWeight: '600', marginBottom: 4 }}>{label}</Text>

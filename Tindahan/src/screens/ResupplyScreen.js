@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, ScrollView, Platform, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Alert, ScrollView, Platform, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getDBConnection } from '../db/db';
 import MainLayout from '../components/MainLayout';
+import { useRoute } from '@react-navigation/native';
 
-export default function ResupplyScreen() {
+export default function ResupplyScreen({ userMode }) {
+  const route = useRoute();
+  const [mode] = useState(userMode || route.params?.userMode || 'client');
+
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -71,25 +75,23 @@ export default function ResupplyScreen() {
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      const isoDate = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
+      const isoDate = selectedDate.toISOString().split('T')[0];
       setExpirationDate(isoDate);
     }
   };
 
   return (
-    <MainLayout>
+    <MainLayout userMode={userMode}>
       <ScrollView style={styles.container}>
         <Text style={styles.header}>SmartTindahan</Text>
         <Text style={styles.subheader}>Resupply Inventory</Text>
         <Text style={styles.description}>Add new stock to your inventory</Text>
 
+        {/* Form */}
         <View style={styles.formContainer}>
           <Text style={styles.label}>Supplier:</Text>
           <View style={styles.pickerContainer}>
-            <Picker 
-              selectedValue={selectedSupplierId} 
-              onValueChange={(v) => setSelectedSupplierId(v)}
-            >
+            <Picker selectedValue={selectedSupplierId} onValueChange={(v) => setSelectedSupplierId(v)}>
               <Picker.Item label="Select Supplier" value={null} />
               {suppliers.map((sup) => (
                 <Picker.Item key={sup.supplier_id} label={sup.name} value={sup.supplier_id} />
@@ -99,10 +101,7 @@ export default function ResupplyScreen() {
 
           <Text style={styles.label}>Product:</Text>
           <View style={styles.pickerContainer}>
-            <Picker 
-              selectedValue={selectedProductId} 
-              onValueChange={(v) => setSelectedProductId(v)}
-            >
+            <Picker selectedValue={selectedProductId} onValueChange={(v) => setSelectedProductId(v)}>
               <Picker.Item label="Select Product" value={null} />
               {products.map((prod) => (
                 <Picker.Item key={prod.product_id} label={prod.name} value={prod.product_id} />
@@ -110,40 +109,15 @@ export default function ResupplyScreen() {
             </Picker>
           </View>
 
-          <TextInput
-            placeholder="Quantity"
-            keyboardType="numeric"
-            value={quantity}
-            onChangeText={setQuantity}
-            style={styles.input}
-          />
-
-          <TextInput
-            placeholder="Unit Cost"
-            keyboardType="numeric"
-            value={unitCost}
-            onChangeText={setUnitCost}
-            style={styles.input}
-          />
-
-          <TextInput
-            placeholder="Threshold Quantity"
-            keyboardType="numeric"
-            value={threshold}
-            onChangeText={setThreshold}
-            style={styles.input}
-          />
+          <TextInput placeholder="Quantity" keyboardType="numeric" value={quantity} onChangeText={setQuantity} style={styles.input} />
+          <TextInput placeholder="Unit Cost" keyboardType="numeric" value={unitCost} onChangeText={setUnitCost} style={styles.input} />
+          <TextInput placeholder="Threshold Quantity" keyboardType="numeric" value={threshold} onChangeText={setThreshold} style={styles.input} />
 
           <Text style={styles.label}>Expiration Date</Text>
-          <TouchableOpacity 
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Text style={styles.dateButtonText}>
-              {expirationDate || 'Select Date'}
-            </Text>
+          <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+            <Text style={styles.dateButtonText}>{expirationDate || 'Select Date'}</Text>
           </TouchableOpacity>
-          
+
           {showDatePicker && (
             <DateTimePicker
               mode="date"
@@ -153,10 +127,7 @@ export default function ResupplyScreen() {
             />
           )}
 
-          <TouchableOpacity 
-            style={styles.submitButton}
-            onPress={handleResupply}
-          >
+          <TouchableOpacity style={styles.submitButton} onPress={handleResupply}>
             <Text style={styles.submitButtonText}>Submit Resupply</Text>
           </TouchableOpacity>
         </View>
