@@ -73,60 +73,115 @@ export default function DashboardScreen({ userMode }) {
   return (
     <MainLayout userMode={mode.toLowerCase()}>
       <ScrollView style={{ padding: 16 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
-          Welcome back, {user?.username || 'User'}! ({mode.toUpperCase()} mode)
+        
+        {/* Welcome Text */}
+        <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 6 }}>
+          Welcome back, {user?.username || 'User'}!
+        </Text>
+        <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
+          Here's what's happening with your business today.
         </Text>
 
-        <View style={{ marginBottom: 20 }}>
-          {mode.toLowerCase() === 'server' && (
-            <StatCard
-              label="Today's Sales"
-              value={`₱ ${stats.salesToday.toFixed(2)}`}
-              color="#a3e635"
-            />
-          )}
-          <StatCard label="Total Products" value={stats.totalProducts} color="#60a5fa" />
-          <StatCard label="Expired Items" value={stats.expired} color="#f87171" />
+        {/* Stat Cards */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 20 }}>
+          <StatCard label="Today's Sales" value={`₱${stats.salesToday.toFixed(2)}`} bg="#d1fae5" text="#065f46" /> 
+          <StatCard label="Total Products" value={stats.totalProducts} bg="#dbeafe" text="#1e40af" />
+          <StatCard label="Low Stock" value={stats.lowStock} bg="#fef9c3" text="#854d0e" />
+          <StatCard label="Expired Items" value={stats.expired} bg="#fee2e2" text="#991b1b" />
         </View>
 
+        {/* Alerts & Notifications */}
         <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
           Alerts & Notifications
         </Text>
-        {notifications.map((item, index) => (
-          <View
-            key={index}
-            style={{
-              padding: 12,
-              marginBottom: 10,
-              borderRadius: 12,
-              backgroundColor: item.type === 'expired' ? '#fee2e2' : '#fef08a',
-            }}
-          >
-            <Text style={{ fontWeight: '600' }}>
-              {item.type === 'expired' ? 'Product Expired:' : 'Low Stock Alert:'} {item.name}
-            </Text>
-            <Text style={{ fontSize: 13 }}>
-              {item.type === 'expired'
-                ? `Expired on ${item.expiration_date}`
-                : `Only ${item.quantity} left in stock`}
-            </Text>
-          </View>
-        ))}
+        {notifications.length === 0 ? (
+          <Text style={{ color: '#6b7280', fontSize: 14 }}>No alerts right now.</Text>
+        ) : (
+          notifications.map((item, index) => (
+            <View
+              key={index}
+              style={{
+                padding: 12,
+                marginBottom: 10,
+                borderRadius: 12,
+                backgroundColor: item.type === 'expired' ? '#fee2e2' : '#fef9c3',
+              }}
+            >
+              <Text style={{ fontWeight: '600', marginBottom: 4 }}>
+                {item.type === 'expired' ? 'Product Expired:' : 'Low Stock Alert:'} {item.name}
+              </Text>
+              <Text style={{ fontSize: 13, color: '#374151' }}>
+                {item.type === 'expired'
+                  ? `Expired on ${item.expiration_date}`
+                  : `Only ${item.quantity} left in stock`}
+              </Text>
+            </View>
+          ))
+        )}
+
+        {/* Recent Sales */}
+        <Text style={{ fontSize: 16, fontWeight: '600', marginTop: 16, marginBottom: 8 }}>
+          Recent Sales
+        </Text>
+        <View
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: '#e5e7eb',
+            marginBottom: 20,
+          }}
+        >
+          <Text style={{ color: '#6b7280' }}>No sales yet</Text>
+          <Text style={{ fontSize: 12, color: '#9ca3af' }}>
+            Sales will appear here once you start processing transactions
+          </Text>
+        </View>
+
+        {/* Quick Actions */}
+        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
+          Quick Actions
+        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <QuickAction label="Start New Sale" desc="Process customer transactions" bg="#dbeafe" />
+          <QuickAction label="Manage Inventory" desc="Add or update products" bg="#d1fae5" />
+          <QuickAction label="View Reports" desc="Analyze sales performance" bg="#ede9fe" />
+        </View>
       </ScrollView>
     </MainLayout>
   );
 }
 
-const StatCard = ({ label, value, color }) => (
+/* Stat Card */
+const StatCard = ({ label, value, bg, text }) => (
   <View
     style={{
-      backgroundColor: color,
+      backgroundColor: bg,
       padding: 16,
       borderRadius: 12,
+      width: '48%',
       marginBottom: 12,
     }}
   >
-    <Text style={{ color: '#1f2937' }}>{label}</Text>
-    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{value}</Text>
+    <Text style={{ color: '#374151', fontSize: 13 }}>{label}</Text>
+    <Text style={{ fontSize: 18, fontWeight: 'bold', color: text }}>{value}</Text>
+  </View>
+);
+
+/* Quick Action Card */
+const QuickAction = ({ label, desc, bg }) => (
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: bg,
+      padding: 14,
+      borderRadius: 12,
+      marginHorizontal: 4,
+    }}
+  >
+    <Text style={{ fontSize: 14, fontWeight: '600', marginBottom: 4 }}>{label}</Text>
+    <Text style={{ fontSize: 12, color: '#374151' }}>{desc}</Text>
   </View>
 );
